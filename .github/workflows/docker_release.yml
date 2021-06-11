@@ -1,0 +1,45 @@
+name: docker_release
+
+on:
+  push:
+    tags:
+    - 'v*.*.*'
+
+jobs:
+  docker_release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: install go
+      uses: actions/setup-go@v2
+
+    - name: login to registry
+      uses: actions-hub/docker/login@master
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.GH_TOKEN }}
+        DOCKER_REGISTRY_URL: ghcr.io
+
+    - name: build :latest
+      if: success()
+      run: |
+        set -euo pipefail
+        VERSION="${GITHUB_REF##*/}"
+        cd $GITHUB_WORKSPACE
+        docker build -t ghcr.io/mkorenkov/sha256msg:$VERSION .
+        docker tag ghcr.io/mkorenkov/sha256msg:$VERSION ghcr.io/mkorenkov/sha256msg:latest
+
+    - name: push release version
+      if: success()
+      uses: actions-hub/docker@master
+      with:
+        args: push ghcr.io/mkorenkov/sha256msg:${GITHUB_REF##*/}
+
+    - name: push :latest
+      if: success()
+      uses: actions-hub/docker@master
+      with:
+        args: push ghcr.io/mkorenkov/sha256msg:latest
