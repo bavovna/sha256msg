@@ -34,10 +34,14 @@ Check `docker-compose.test.yml` for username, secret and server endpoint.
 ```
 docker-compose -f docker-compose.test.yml up -d --no-deps --build
 
-USER="username"
-PASSWORD="secret"
-API_ENDPOINT="http://0.0.0.0:8000/api/v1"
+USER="user123"
+PASSWORD="secret123"
+API_ENDPOINT="http://0.0.0.0:8000/api/v1/"
 
-curl --user username:secret --data-binary "@filename_here" -i "$API_ENDPOINT"
-curl --user "$USER:$PASSWORD" -i "$API_ENDPOINT/sha256key"
+# test it by sending HTTP POST to "$API_ENDPOINT"
+curl --user "$USER:$PASSWORD" --data-binary "@README.md" -i "$API_ENDPOINT"
+
+# use supplied key to get back the payload, e.g.
+curl --user "$USER:$PASSWORD" -i "${API_ENDPOINT}i1c9761ce00146fa5b7d812626442f604f1bf7ce97c8f9bab3afc325113f8fe5c"
 ```
+
