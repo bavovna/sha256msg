@@ -91,7 +91,7 @@ func bucket(bucketWithPath string) string {
 func s3prefix(bucketWithPath string, pathParts ...string) string {
 	bucketPath := strings.Split(bucketWithPath, "/")
 	if len(bucketPath) > 1 {
-		s3PathParts := append(bucketPath[1:], pathParts...)
+		s3PathParts := append(bucketPath[1:], pathParts...) //nolint: append is OK here
 		return path.Join(s3PathParts...)
 	}
 	return path.Join(pathParts...)
