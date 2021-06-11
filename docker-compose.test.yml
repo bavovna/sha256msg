@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  sha256msg:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    container_name: sha256msg
+    hostname: sha256msg
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    links:
+      - minio
+    depends_on:
+      - minio
+    environment:
+      - LISTEN_ADDR=:8000
+      - CREDENTIALS=user123:secret123
+      - S3_ACCESS_KEY=minio
+      - S3_SECRET=minio_secret
+      - S3_REGION=us-east-1
+      - S3_ENDPOINT=http://minio:9000
+      - S3_BUCKET=local/t/e/s/t
+    networks:
+      - sha256testnet
+
+  minio:
+    container_name: minio
+    hostname: minio
+    image: minio/minio
+    restart: unless-stopped
+    volumes:
+      - minio_config:/root/.minio
+      - minio_data:/data
+    ports:
+      - 9000:9000
+    environment:
+      - MINIO_ACCESS_KEY=minio
+      - MINIO_SECRET_KEY=minio_secret
+      - MINIO_REGION_NAME=us-east-1
+      - MINIO_REGION_COMMENT=us-east-1
+    command: server /data
+    networks:
+      - sha256testnet
+
+volumes:
+  minio_config:
+  minio_data:
+
+networks:
+  sha256testnet:
+    driver: bridge
